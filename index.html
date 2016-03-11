@@ -23,10 +23,19 @@ $.get('https://spreadsheets.google.com/feeds/list/1rZhkkx0PbvA_9puMevEeSiWVbSUBa
     entryMap[l.gsx$key.$t] = l.gsx$url.$t;
   })
   if(!entryMap[ethercalc_name]) {
-    ethercalc_name = csv_api_source_id = '1Vuk4dted2GT3a4ifgkhi4oBC_PAIS8XiBk8OeFjK99I';
-  } else {
-    ethercalc_name = csv_api_source_id = entryMap[ethercalc_name];
+    var keyFound = false;
+    //using short url
+    for(i in entryMap) {
+      if(entryMap[i] === ethercalc_name) {
+        ethercalc_name = csv_api_source_id = i;
+        keyFound = true;
+      }
+    }
+    if(false === keyFound) {
+      ethercalc_name = csv_api_source_id = '1Vuk4dted2GT3a4ifgkhi4oBC_PAIS8XiBk8OeFjK99I';
+    }
   }
+
   csv_api_source = 'docs.google.com/feeds/download/spreadsheets/Export?key='+ethercalc_name+'&exportFormat=csv&gid=0';
   csv_api_source_type = "google";
   // because posting to gsheet is hard to implement, we don't offer submit feature when using gsheet. since it's easy to moderate editing in gsheet, you can just let users edit or comment on it.
