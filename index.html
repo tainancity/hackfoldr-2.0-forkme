@@ -16,17 +16,25 @@ var iframe_src;
 // user preferences saved in local storage
 var foldr_histories = JSON.parse(localStorage.getItem("hackfoldr")) || [];
 var foldr_scale = JSON.parse(localStorage.getItem("hackfoldr-scale")) || "";
+var entryMap = {};
 
-// check where the csv will come from, ethercalc or gsheet?
-if(ethercalc_name.length < 40){
-  csv_api_source = 'https://ethercalc.org/_/'+ethercalc_name+'/csv';
-  csv_api_source_type = "ethercalc";
-}else{
+$.get('https://spreadsheets.google.com/feeds/list/1rZhkkx0PbvA_9puMevEeSiWVbSUBavpyYxtAeJGxWas/od6/public/values?alt=json', function(r) {
+  $.each(r.feed.entry, function(k, l) {
+    entryMap[l.gsx$key.$t] = l.gsx$url.$t;
+  })
+  if(!entryMap[ethercalc_name]) {
+    ethercalc_name = csv_api_source_id = '1Vuk4dted2GT3a4ifgkhi4oBC_PAIS8XiBk8OeFjK99I';
+  } else {
+    ethercalc_name = csv_api_source_id = entryMap[ethercalc_name];
+  }
   csv_api_source = 'docs.google.com/feeds/download/spreadsheets/Export?key='+ethercalc_name+'&exportFormat=csv&gid=0';
   csv_api_source_type = "google";
   // because posting to gsheet is hard to implement, we don't offer submit feature when using gsheet. since it's easy to moderate editing in gsheet, you can just let users edit or comment on it.
   $("#topbar .add.to.list, #topbar .submit.segment").remove();
-};
+  // load page~
+  compile_ethercalc();
+});
+
 
 // let user sort #toc menu by drag and drop, a very user friendly feature suggest by @ipa. using jquery ui sortable. (also, ethercalc only)
 var sort_ethercalc = function(sort_initial_row, sort_target_row){
@@ -522,8 +530,6 @@ var compile_ethercalc = function(){
   }
 };
 
-// load page~
-compile_ethercalc();
 
 // setup history menu
 $.each(foldr_histories, function(index, foldr_history){
